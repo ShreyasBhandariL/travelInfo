@@ -1,4 +1,3 @@
-// app/api/places/details/route.ts
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -17,7 +16,7 @@ export async function GET(request: Request) {
       method: 'GET',
       headers: {
         'X-Goog-Api-Key': apiKey || '',
-        'X-Goog-FieldMask': 'id,displayName,formattedAddress,editorialSummary,rating,regularOpeningHours,internationalPhoneNumber,websiteUri,photos,reviews,googleMapsLinks'
+        'X-Goog-FieldMask': '*'
       }
     });
 

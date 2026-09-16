@@ -1,8 +1,7 @@
 "use client"
 import Logout from "../components/logout"
 import Link from "next/link"
-import { useState } from "react";
-import { mumbaiPlaces } from "../data/dummyPlaces";
+import { useEffect, useState } from "react";
 
 interface Coordinates {
     lat: number;
@@ -22,11 +21,19 @@ interface DashboardClientProps {
   session: any;
 }
 
+interface MumbaiPlaces {
+  id: number;
+  name: string;
+  description: string;
+  areas: string;
+}
+
 export default function DashboardPage({session}: DashboardClientProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredPlaces, setFilteredPlaces] = useState<Places[]>([]);
   const [show,setShow] = useState <boolean>(false);
   const [choice,setChoice] = useState <number>(1);
+  const [mumbaiPlaces, setMumbaiPlaces] = useState<MumbaiPlaces[]>([]);
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (e.target.value === "Private Villa") {
@@ -47,14 +54,33 @@ export default function DashboardPage({session}: DashboardClientProps) {
       setShow(false);
       return;
     }
-
-    const matches = mumbaiPlaces.filter((place) =>
-      place.name.toLowerCase().includes(val.toLowerCase())
-    );
-
-    setFilteredPlaces(matches);
     setShow(true);
   };
+  
+
+  useEffect(() => {
+    const fetchPlaces = async () =>{
+      const res = await fetch('/api/places',{
+        method:"POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: undefined, choice: choice })
+      })
+      const places = await res.json(); 
+      const mappedPlaces = places.map((place: any, index: number) => {
+        const areaText  = place.addressDescriptor.areas.map((areaItem: any) => areaItem.displayName?.text).filter(Boolean).join(", ") || "Mumbai, Maharashtra";
+        return{
+          id: place.id || index,
+          name: place.displayName?.text || "Unknown Spot",
+          description: place.editorialSummary?.text || "Mumbai, Maharashtra, India",
+          areas: areaText,
+        };
+      })
+      setMumbaiPlaces(mappedPlaces);
+    }
+    fetchPlaces();
+  },[])
 
   const handleForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,6 +93,7 @@ export default function DashboardPage({session}: DashboardClientProps) {
             body: JSON.stringify({query: searchQuery,choice: choice})
         });
         const places = await res.json();
+        console.log(places)
         if (Array.isArray(places)) {
             const mappedPlaces = places.map((place: any,index: number) => ({
                 id: place.id || index,
@@ -92,12 +119,12 @@ export default function DashboardPage({session}: DashboardClientProps) {
       
       <header className="flex items-center justify-between px-8 py-4 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center gap-2">
-          <span className="text-xl font-bold tracking-tight text-blue-600 dark:text-blue-400">MumbaiGetaways</span>
+          <span className="text-xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">MumbaiGetaways</span>
         </div>
         {!session ?(
         <Link 
           href="/account/sign-in" 
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-all"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-all"
         >
           Sign In
         </Link>):(
@@ -152,7 +179,7 @@ export default function DashboardPage({session}: DashboardClientProps) {
                 <option value={"Places to Visit"}>Places to Visit</option>
               </select>
             </div>
-            <button type="submit" className="sm:mt-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-6 py-2 rounded-lg cursor-pointer transition-all self-stretch sm:self-auto">
+            <button type="submit" className="sm:mt-5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-6 py-2 rounded-lg cursor-pointer transition-all self-stretch sm:self-auto">
               Explore Spots
             </button>
           </form>
@@ -192,51 +219,37 @@ export default function DashboardPage({session}: DashboardClientProps) {
                 </>
               ) : (
                 <div className="text-center py-6">
-                  <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">No matching places found for "{searchQuery}"</p>
+                  <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Click Explore Spots to see places found for "{searchQuery}"</p>
                 </div>
               )}
             </div>
           )}
           </div>
-
+        {mumbaiPlaces?.length > 0 && 
         <section className="flex flex-col gap-6">
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Popular Holiday Clusters</h2>
             <p className="text-xs text-zinc-500">Pick a hub to discover curated homes and hidden surrounding trails.</p>
           </div>
-
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
-            <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 rounded-xl flex flex-col gap-3 justify-between">
+            {mumbaiPlaces?.map((place) => (
+            <div key={place.id} className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 rounded-xl flex flex-col gap-3 justify-between">
               <div>
-                <h3 className="font-bold text-sm text-zinc-900 dark:text-white">Karjat Countryside</h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Lush green farm villas nestled by active mountain rivers.</p>
+                <h3 className="font-bold text-sm text-zinc-900 dark:text-white">{place.name}</h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{place.description}</p>
                 <div className="mt-3 bg-blue-50 dark:bg-zinc-800 border border-blue-100 dark:border-zinc-700 p-2.5 rounded-lg">
-                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Hidden Gem Nearby:</span>
-                  <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 mt-0.5">Kondana Caves Waterfall Trail — A secluded trek missing from standard tourist maps.</p>
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Hidden Gem Nearby: </span>
+                  <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 mt-0.5">{place.areas}</p>
                 </div>
               </div>
-              <Link href="/explore/karjat" className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline inline-block mt-2 self-start">
+              <Link href={`/place/${place.id}`} className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline inline-block mt-2 self-start">
                 View Stays & Secrets &rarr;
               </Link>
-            </div>
-
-            <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 rounded-xl flex flex-col gap-3 justify-between">
-              <div>
-                <h3 className="font-bold text-sm text-zinc-900 dark:text-white">Coastal Alibaug</h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Quiet coastal stays away from crowded main beach stretches.</p>
-                <div className="mt-3 bg-blue-50 dark:bg-zinc-800 border border-blue-100 dark:border-zinc-700 p-2.5 rounded-lg">
-                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Hidden Gem Nearby:</span>
-                  <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 mt-0.5">Korlai Fort Lighthouse — A stunning hidden rocky panoramic point with fewer crowds.</p>
-                </div>
-              </div>
-              <Link href="/explore/alibaug" className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline inline-block mt-2 self-start">
-                View Stays & Secrets &rarr;
-              </Link>
-            </div>
-
+            </div>)
+            )}
           </div>
-        </section>
+        </section>}
 
       </main>
 
