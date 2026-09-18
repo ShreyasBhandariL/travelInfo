@@ -168,7 +168,7 @@ export default function DashboardPage({session}: DashboardClientProps) {
         <section className="w-full bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-md">
           <form onSubmit={handleForm} className="flex flex-col sm:flex-row gap-3 w-full">
             <div className="flex-1 flex flex-col gap-1">
-              <label className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pl-1">Where to spend holiday?</label>
+              <label className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pl-1">Where to spend holiday ?</label>
               <input 
                 type="text"
                 onChange={handleSearch} 
