@@ -66,7 +66,7 @@ export default function SpotDetailPage() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-zinc-50 dark:bg-zinc-950">
         <div className="p-3 bg-red-100 dark:bg-red-950/30 rounded-full text-red-600">📍</div>
         <p className="text-sm text-zinc-500 max-w-xs text-center">Destination details could not be found.</p>
-        <button onClick={() => router.push("/dashboard")} className="text-xs bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-4 py-2 rounded-xl">
+        <button onClick={() => router.push("/")} className="text-xs bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-4 py-2 rounded-xl">
           Go Back
         </button>
       </div>
@@ -77,7 +77,7 @@ export default function SpotDetailPage() {
     <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-8 px-4 sm:px-6 md:px-8 text-zinc-900 dark:text-zinc-100 tracking-tight">
       <div className="max-w-6xl mx-auto">
         
-        <button onClick={() => router.push("/dashboard")} className="mb-6 text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 cursor-pointer transition-colors group">
+        <button onClick={() => router.push("/")} className="mb-6 text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 cursor-pointer transition-colors group">
           <span className="group-hover:-translate-x-1 transition-transform">←</span> Back to Discovery
         </button>
 
