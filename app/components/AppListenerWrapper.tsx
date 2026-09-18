@@ -15,8 +15,10 @@ export default function AppListenerWrapper({ children }: { children: React.React
         Browser.close();
         
         const path = event.url.split('mumbaiapp://').pop();
-        if (path) {
+        if (path && path.trim() !== "") {
           router.push(`/${path}`);
+        } else {
+          router.push("/");
         }
       });
 

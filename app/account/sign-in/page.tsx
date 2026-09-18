@@ -15,7 +15,7 @@ const Signin = () => {
 
         if (isMobileAPK) {
             await Browser.open({
-                url: 'https://travel-info-theta.vercel.app/api/auth/callback/google'
+                url: 'https://travel-info-theta.vercel.app/api/auth/signin/google?callbackUrl=mumbaiapp://'
             });
         } else {
             await googleSignIn();
