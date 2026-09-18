@@ -7,6 +7,14 @@ const config: CapacitorConfig = {
   server: {
     url:'https://travel-info-theta.vercel.app/',
     cleartext: true
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 3000,
+      launchAutoHide: true,
+      backgroundColor: "#ffffff",
+      androidScaleType: "CENTER_CROP"
+    }
   }
 };
 

@@ -2,6 +2,7 @@
 import Logout from "../components/logout"
 import Link from "next/link"
 import { useEffect, useState } from "react";
+import { useLocation } from "../context/LocationContext";
 
 interface Coordinates {
     lat: number;
@@ -14,6 +15,7 @@ interface Places {
     category: string;
     description: string;
     coordinates: Coordinates;
+    distanceText: string;
     amenities: string[];
 }
 
@@ -25,6 +27,7 @@ interface MumbaiPlaces {
   id: number;
   name: string;
   description: string;
+  distanceText: string;
   areas: string;
 }
 
@@ -34,6 +37,7 @@ export default function DashboardPage({session}: DashboardClientProps) {
   const [show,setShow] = useState <boolean>(false);
   const [choice,setChoice] = useState <number>(1);
   const [mumbaiPlaces, setMumbaiPlaces] = useState<MumbaiPlaces[]>([]);
+  const {userCoords} = useLocation(); 
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (e.target.value === "Private Villa") {
@@ -74,6 +78,7 @@ export default function DashboardPage({session}: DashboardClientProps) {
           id: place.id || index,
           name: place.displayName?.text || "Unknown Spot",
           description: place.editorialSummary?.text || "Mumbai, Maharashtra, India",
+          distanceText: place.distanceText || null,
           areas: areaText,
         };
       })
@@ -90,10 +95,9 @@ export default function DashboardPage({session}: DashboardClientProps) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({query: searchQuery,choice: choice})
+            body: JSON.stringify({query: searchQuery,choice: choice,userLat: userCoords?.lat || null, userLng: userCoords?.lng || null})
         });
         const places = await res.json();
-        console.log(places)
         if (Array.isArray(places)) {
             const mappedPlaces = places.map((place: any,index: number) => ({
                 id: place.id || index,
@@ -104,6 +108,7 @@ export default function DashboardPage({session}: DashboardClientProps) {
                   lat: place.location?.latitude || 0,
                   lng: place.location?.longitude || 0
                 },
+                distanceText: place.distanceText || null,
                 amenities: ["Rating: " + (place.rating || "N/A")]
             }))
             setFilteredPlaces(mappedPlaces);
@@ -179,7 +184,7 @@ export default function DashboardPage({session}: DashboardClientProps) {
                 <option value={"Places to Visit"}>Places to Visit</option>
               </select>
             </div>
-            <button type="submit" className="sm:mt-5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-6 py-2 rounded-lg cursor-pointer transition-all self-stretch sm:self-auto">
+            <button type="submit" className="sm:mt-5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-6 py-2 rounded-lg cursor-pointer transition-all self-stretch sm:self-auto disabled:cursor-not-allowed disabled:opacity-50" disabled={searchQuery === ""}>
               Explore Spots
             </button>
           </form>
@@ -199,10 +204,15 @@ export default function DashboardPage({session}: DashboardClientProps) {
                         <div className="mb-4">
                           <div className="flex justify-between items-start gap-2 mb-2">
                             <h3 className="font-bold text-sm text-zinc-900 dark:text-white">{place.name}</h3>
-                            <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shrink-0">
+                            <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shrink-0">
                               {place.category}
                             </span>
                           </div>
+                            {place.distanceText && (
+                              <p className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mb-2 bg-emerald-500/5 py-1 px-2 rounded-md border border-emerald-500/10 w-fit">
+                                🚗 {place.distanceText}
+                              </p>
+                            )}
                           <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-3">{place.description}</p>
                         </div>
                         <div className="flex flex-wrap gap-1">
@@ -243,9 +253,16 @@ export default function DashboardPage({session}: DashboardClientProps) {
                   <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 mt-0.5">{place.areas}</p>
                 </div>
               </div>
-              <Link href={`/place/${place.id}`} className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline inline-block mt-2 self-start">
-                View Stays & Secrets &rarr;
-              </Link>
+              <div className="flex justify-between">
+                <Link href={`/place/${place.id}`} className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline inline-block mt-2 self-start">
+                  View Stays & Secrets &rarr;
+                </Link>
+                {place.distanceText && (
+                  <p className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mb-2 bg-emerald-500/5 py-1 px-2 rounded-md border border-emerald-500/10 w-fit">
+                    🚗 {place.distanceText}
+                  </p>
+                )}
+              </div>
             </div>)
             )}
           </div>
