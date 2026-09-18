@@ -122,7 +122,7 @@ export default function DashboardPage({session}: DashboardClientProps) {
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 font-sans dark:bg-black">
       
-      <header className="flex items-center justify-between px-8 py-4 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+      <header className="flex items-center justify-between px-8 sm:px-4 py-4 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center gap-2">
           <span className="text-xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">MumbaiGetaways</span>
         </div>
